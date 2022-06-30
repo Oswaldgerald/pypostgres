@@ -13,6 +13,37 @@ def get_data(name, age, address):
     print('Data submitted successfully')
     conn.commit()
     conn.close()
+    display_all()
+
+
+def search(id):
+    conn = psycopg2.connect(database="studentdb", user='postgres', password='postgres', host='localhost', port='5433')
+    cur = conn.cursor()
+    query = '''select * from student where id=%s'''
+    cur.execute(query, (id))
+    row = cur.fetchone()
+    display_search(row)
+
+    conn.commit()
+    conn.close()
+
+
+def display_search(row):
+    listbox = Listbox(frame, width=20, height=1)
+    listbox.grid(row=9, column=1)
+    listbox.insert(END, row)
+
+
+def display_all():
+    conn = psycopg2.connect(database="studentdb", user='postgres', password='postgres', host='localhost', port='5433')
+    cur = conn.cursor()
+    query = '''select * from student'''
+    cur.execute(query)
+    row = cur.fetchall()
+    listbox = Listbox(frame, width=20, height=5)
+    listbox.grid(row=10, column=1)
+    for x in row:
+        listbox.insert(END, x)
 
 
 canvas = Canvas(root, height=480, width=900)
@@ -42,4 +73,17 @@ entry_address.grid(row=3, column=1)
 button = Button(frame, text="Submit",
                 command=lambda: get_data(entry_name.get(), entry_age.get(), entry_address.get()))
 button.grid(row=4, column=1)
+
+label = Label(frame, text="Search Data")
+label.grid(row=5, column=1)
+
+label = Label(frame, text="Search By ID")
+label.grid(row=6, column=0)
+
+id_search = Entry(frame)
+id_search.grid(row=6, column=1)
+
+button = Button(frame, text="Search", command=lambda: search(id_search.get()))
+button.grid(row=6, column=2)
+display_all()
 root.mainloop()
